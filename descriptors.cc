@@ -19,8 +19,10 @@ const char* decompile_proto(const char* descriptor_set_data,
     for (auto file: descriptor_set.file()) {
         auto file_desc = pool.BuildFile(file);
         if (ends_with(filename, file.name())) {
-            // TODO: proto3 adds options to preserve comments.
-            std::string output = file_desc->DebugString();
+            // DebugStringOptions is new in proto3.
+            google::protobuf::DebugStringOptions dso;
+            dso.include_comments = true;
+            std::string output = file_desc->DebugStringWithOptions(dso);
             char* raw_output = static_cast<char*>(malloc(output.size()));
             memcpy(raw_output, output.data(), output.size());
             return raw_output;

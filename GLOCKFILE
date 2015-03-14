@@ -1,5 +1,5 @@
 cmd github.com/robfig/glock
 github.com/agtorre/gocolorize f42b554bf7f006936130c9bb4f971afd2d87f671
-github.com/cockroachdb/c-protobuf 9e8dac59ca2a3fc82cd0665ad32b1a36f3df40b8
+github.com/cockroachdb/c-protobuf 9e7d27e0f9a83321e76ab8ba0b272396a98c8c3d
 github.com/golang/protobuf c22ae3cf020a21ebb7ae566dccbe90fc8ea4f9ea
 github.com/robfig/glock 78c45da050a4d993d12ad07e8ddb10a4891ac701
