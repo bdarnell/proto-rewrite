@@ -23,8 +23,9 @@ const char* decompile_proto(const char* descriptor_set_data,
             google::protobuf::DebugStringOptions dso;
             dso.include_comments = true;
             std::string output = file_desc->DebugStringWithOptions(dso);
-            char* raw_output = static_cast<char*>(malloc(output.size()));
+            char* raw_output = static_cast<char*>(malloc(output.size()+1));
             memcpy(raw_output, output.data(), output.size());
+            raw_output[output.size()] = 0;
             return raw_output;
         }
     }
