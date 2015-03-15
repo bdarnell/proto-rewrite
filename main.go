@@ -64,6 +64,25 @@ func loadDescriptors(filenames []string) (*descriptor.FileDescriptorSet, error) 
 	return &descriptor, nil
 }
 
+func stripGogoOptions(descriptorSet *descriptor.FileDescriptorSet) {
+	for _, fd := range descriptorSet.File {
+		if fd.GetPackage() != "proto" {
+			continue
+		}
+		toDelete := -1
+		for i, dep := range fd.Dependency {
+			if dep == "github.com/gogo/protobuf/gogoproto/gogo.proto" {
+				toDelete = i
+				break
+			}
+		}
+		if toDelete != -1 {
+			fd.Dependency[toDelete] = fd.Dependency[len(fd.Dependency)-1]
+			fd.Dependency = fd.Dependency[:len(fd.Dependency)-1]
+		}
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -76,7 +95,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO: filter the descriptorSet.
+	stripGogoOptions(descriptorSet)
 
 	reencoded, err := proto.Marshal(descriptorSet)
 	if err != nil {
