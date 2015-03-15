@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
+	"strings"
 	"unsafe"
 
 	_ "github.com/cockroachdb/c-protobuf"
@@ -66,9 +68,6 @@ func loadDescriptors(filenames []string) (*descriptor.FileDescriptorSet, error) 
 
 func stripGogoOptions(descriptorSet *descriptor.FileDescriptorSet) {
 	for _, fd := range descriptorSet.File {
-		if fd.GetPackage() != "proto" {
-			continue
-		}
 		toDelete := -1
 		for i, dep := range fd.Dependency {
 			if dep == "github.com/gogo/protobuf/gogoproto/gogo.proto" {
@@ -95,7 +94,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	stripGogoOptions(descriptorSet)
+	for _, filter := range strings.Split(*filters, ",") {
+		switch filter {
+		case "strip_gogo_options":
+			stripGogoOptions(descriptorSet)
+		case "":
+		default:
+			log.Printf("Unrecognized filter %s", filter)
+		}
+	}
 
 	reencoded, err := proto.Marshal(descriptorSet)
 	if err != nil {
@@ -113,7 +120,16 @@ func main() {
 			output = C.GoString(cOutput)
 			C.free(unsafe.Pointer(cOutput))
 		}
-		fmt.Printf("%s", output)
+
+		if *outDir == "" {
+			fmt.Printf("%s\n", output)
+		} else {
+			outfile := path.Join(*outDir, path.Base(filename))
+			err := ioutil.WriteFile(outfile, []byte(output), 0644)
+			if err != nil {
+				log.Printf("failed to save file %s: %s", outfile, err)
+			}
+		}
 	}
 	C.free(unsafe.Pointer(cReencoded))
 }
