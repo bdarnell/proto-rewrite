@@ -70,7 +70,7 @@ func stripGogoOptions(descriptorSet *descriptor.FileDescriptorSet) {
 	for _, fd := range descriptorSet.File {
 		toDelete := -1
 		for i, dep := range fd.Dependency {
-			if dep == "github.com/gogo/protobuf/gogoproto/gogo.proto" {
+			if dep == "gogoproto/gogo.proto" {
 				toDelete = i
 				break
 			}
